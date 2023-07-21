@@ -5,19 +5,26 @@ import {
     TextInput,
     Image,
     TouchableOpacity,
+    Alert,
     StyleSheet,
 } from "react-native";
 
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth'
+import { initializeApp } from 'firebase/app'
+import { firebaseConfig } from "../firebase-config";
+import { addDoc, collection, getFirestore, query, where, getDocs } from "firebase/firestore";
+
 const Login = ({ navigation }) => {
     const [opcionSeleccionada, setOpcionSeleccionada] = useState("iniciarSesion");
-    const [mostrarFormulario, setMostrarFormulario] = useState(true);
     const [email, setEmail] = useState("");
     const [contrasena, setContrasena] = useState("");
-    const [nombre, setNombre] = useState("");
+
+    const app = initializeApp(firebaseConfig)
+    const auth = getAuth(app)
+    const db = getFirestore();
 
     const manejarPresionarOpcion = (opcion) => {
         setOpcionSeleccionada(opcion);
-        setMostrarFormulario(true);
     };
 
     const manejarInputEmail = (texto) => {
@@ -28,33 +35,75 @@ const Login = ({ navigation }) => {
         setContrasena(texto);
     };
 
-    const manejarInputNombre = (texto) => {
-        setNombre(texto);
-    };
-
     const manejarRegistro = () => {
-        console.log("Botón Registrarse");
+        createUserWithEmailAndPassword(auth, email, contrasena)
+            .then(({ user }) => {
+                const userData = {
+                    email: user.email,
+                    rol: "cliente",
+                };
+
+                addDoc(collection(db, "usuarios"), userData)
+                    .then((docRef) => {
+                        console.log("Usuario registrado con éxito:", docRef.id);
+                        if (userData.rol === "admin") {
+                            console.log('admin regostro')
+                            navigation.navigate("Home");
+                        } else if (userData.rol === "repartidor") {
+                            console.log('repartidor rgistro')
+                            navigation.navigate("Home");
+                        } else {
+                            console.log('cliente registro')
+                            navigation.navigate("Home");
+                        }
+                    })
+                    .catch((error) => {
+                        console.error("Error al agregar el documento:", error.message);
+                        Alert.alert("Error al registrar al usuario. Inténtalo de nuevo.");
+                    });
+            })
+            .catch((error) => {
+                console.error(error);
+                Alert.alert(error.message);
+            });
     };
 
-    const manejarIngresar = () => {
+
+    const manejarIngresar = async () => {
         if (email.trim() === "" || contrasena === "") {
             console.log("Campos vacíos");
             return;
         }
 
-        const usuariosPrueba = [{ email: "admin", contrasena: "123" }];
+        try {
+            const { user } = await signInWithEmailAndPassword(auth, email, contrasena);
 
-        const usuario = usuariosPrueba.find(
-            (user) => user.email === email && user.contrasena === contrasena
-        );
-
-        if (usuario) {
-            console.log("Conectado");
-            navigation.navigate('Home')
-        } else {
-            console.log("No existe");
+            const usuariosRef = collection(db, "usuarios");
+            const q = query(usuariosRef, where("email", "==", user.email));
+            const querySnapshot = await getDocs(q);
+            if (!querySnapshot.empty) {
+                querySnapshot.forEach((doc) => {
+                    const userData = doc.data();
+                    if (userData.rol === "admin") {
+                        console.log('admin log')
+                        navigation.navigate("Home");
+                    } else if (userData.rol === "repartidor") {
+                        console.log('rep log')
+                        navigation.navigate("Home");
+                    } else {
+                        console.log('clit log')
+                        navigation.navigate("Home");
+                    }
+                });
+            } else {
+                console.log("Usuario no encontrado en la colección 'usuarios'");
+            }
+        } catch (error) {
+            console.error(error);
+            Alert.alert(error.message);
         }
     };
+
     return (
         <View style={styles.contenedor}>
             <View style={styles.cabecera}>
@@ -77,72 +126,36 @@ const Login = ({ navigation }) => {
                     </TouchableOpacity>
                 </View>
             </View>
+            <View style={styles.contenedorFormulario}>
+                <View style={styles.campoFormulario}>
+                    <Text style={styles.etiqueta}>Email:</Text>
+                    <TextInput
+                        style={styles.entrada}
+                        placeholder="Ingresa tu email"
+                        onChangeText={manejarInputEmail}
+                        underlineColorAndroid="transparent"
+                    />
 
-            {mostrarFormulario && (
-                <View style={styles.contenedorFormulario}>
-                    <View style={styles.campoFormulario}>
-                        {opcionSeleccionada === "iniciarSesion" ? (
-                            <>
-                                <Text style={styles.etiqueta}>Email:</Text>
-                                <TextInput
-                                    style={styles.entrada}
-                                    placeholder="Ingresa tu email"
-                                    onChangeText={manejarInputEmail}
-                                    underlineColorAndroid="transparent"
-                                />
+                    <Text style={styles.etiqueta}>Contraseña:</Text>
+                    <TextInput
+                        style={styles.entrada}
+                        placeholder="Ingresa tu contraseña"
+                        onChangeText={manejarInputContrasena}
+                        secureTextEntry
+                        underlineColorAndroid="transparent"
+                    />
 
-                                <Text style={styles.etiqueta}>Contraseña:</Text>
-                                <TextInput
-                                    style={styles.entrada}
-                                    placeholder="Ingresa tu contraseña"
-                                    onChangeText={manejarInputContrasena}
-                                    secureTextEntry
-                                    underlineColorAndroid="transparent"
-                                />
-                                <TouchableOpacity
-                                    style={styles.botonIngresar}
-                                    onPress={manejarIngresar}
-                                >
-                                    <Text style={styles.textoBotonIngresar}>Ingresar</Text>
-                                </TouchableOpacity>
-                            </>
-                        ) : (
-                            <>
-                                <Text style={styles.etiqueta}>Nombre:</Text>
-                                <TextInput
-                                    style={styles.entrada}
-                                    placeholder="Ingresa tu nombre"
-                                    onChangeText={manejarInputNombre}
-                                    underlineColorAndroid="transparent"
-                                />
-
-                                <Text style={styles.etiqueta}>Email:</Text>
-                                <TextInput
-                                    style={styles.entrada}
-                                    placeholder="Ingresa tu email"
-                                    onChangeText={manejarInputEmail}
-                                    underlineColorAndroid="transparent"
-                                />
-
-                                <Text style={styles.etiqueta}>Contraseña:</Text>
-                                <TextInput
-                                    style={styles.entrada}
-                                    placeholder="Ingresa tu contraseña"
-                                    onChangeText={manejarInputContrasena}
-                                    secureTextEntry
-                                    underlineColorAndroid="transparent"
-                                />
-                                <TouchableOpacity
-                                    style={styles.botonIngresar}
-                                    onPress={manejarRegistro}
-                                >
-                                    <Text style={styles.textoBotonIngresar}>Registrarse</Text>
-                                </TouchableOpacity>
-                            </>
-                        )}
-                    </View>
+                    {opcionSeleccionada === "iniciarSesion" ? (
+                        <TouchableOpacity style={styles.botonIngresar} onPress={manejarIngresar}>
+                            <Text style={styles.textoBotonIngresar}>Ingresar</Text>
+                        </TouchableOpacity>
+                    ) : (
+                        <TouchableOpacity style={styles.botonIngresar} onPress={manejarRegistro}>
+                            <Text style={styles.textoBotonIngresar}>Registrarse</Text>
+                        </TouchableOpacity>
+                    )}
                 </View>
-            )}
+            </View>
         </View>
     );
 };
