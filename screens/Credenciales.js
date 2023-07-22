@@ -12,9 +12,9 @@ import {
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth'
 import { initializeApp } from 'firebase/app'
 import { firebaseConfig } from "../firebase-config";
-import { addDoc, collection, getFirestore, query, where, getDocs } from "firebase/firestore";
+import { setDoc, collection, getFirestore, query, where, getDocs, doc } from "firebase/firestore";
 
-const Login = ({ navigation }) => {
+const Credenciales = ({ navigation }) => {
     const [opcionSeleccionada, setOpcionSeleccionada] = useState("iniciarSesion");
     const [email, setEmail] = useState("");
     const [contrasena, setContrasena] = useState("");
@@ -35,39 +35,37 @@ const Login = ({ navigation }) => {
         setContrasena(texto);
     };
 
-    const manejarRegistro = () => {
-        createUserWithEmailAndPassword(auth, email, contrasena)
-            .then(({ user }) => {
-                const userData = {
-                    email: user.email,
-                    rol: "cliente",
-                };
+    const manejarRegistro = async () => {
+        try {
+            const { user } = await createUserWithEmailAndPassword(auth, email, contrasena);
 
-                addDoc(collection(db, "usuarios"), userData)
-                    .then((docRef) => {
-                        console.log("Usuario registrado con éxito:", docRef.id);
-                        if (userData.rol === "admin") {
-                            console.log('admin regostro')
-                            navigation.navigate("Home");
-                        } else if (userData.rol === "repartidor") {
-                            console.log('repartidor rgistro')
-                            navigation.navigate("Home");
-                        } else {
-                            console.log('cliente registro')
-                            navigation.navigate("Home");
-                        }
-                    })
-                    .catch((error) => {
-                        console.error("Error al agregar el documento:", error.message);
-                        Alert.alert("Error al registrar al usuario. Inténtalo de nuevo.");
-                    });
-            })
-            .catch((error) => {
-                console.error(error);
-                Alert.alert(error.message);
-            });
+            const userData = {
+                email: user.email,
+                rol: "cliente",
+            };
+
+            await setDoc(doc(db, "usuarios", user.uid), userData);
+            setOpcionSeleccionada('iniciarSesion')
+            Alert.alert('Usuario registrado', 'Ya puedes iniciar sesión')
+            console.log("Usuario registrado", user.uid);
+        } catch (error) {
+            console.error(error);
+
+            switch (error.code) {
+                case "auth/invalid-email":
+                    Alert.alert("Error de registro", "Correo electrónico inválido.");
+                    break;
+                case "auth/weak-password":
+                    Alert.alert("Error de registro", "La contraseña debe tener al menos 6 caracteres.");
+                    break;
+                case "auth/email-already-in-use":
+                    Alert.alert("Error de registro", "El correo electrónico ya está en uso. Prueba con otro.");
+                    break;
+                default:
+                    Alert.alert("Error de registro", "Hubo un error al registrar al usuario. Por favor, inténtalo de nuevo.");
+            }
+        }
     };
-
 
     const manejarIngresar = async () => {
         if (email.trim() === "" || contrasena === "") {
@@ -81,18 +79,23 @@ const Login = ({ navigation }) => {
             const usuariosRef = collection(db, "usuarios");
             const q = query(usuariosRef, where("email", "==", user.email));
             const querySnapshot = await getDocs(q);
+
             if (!querySnapshot.empty) {
                 querySnapshot.forEach((doc) => {
                     const userData = doc.data();
-                    if (userData.rol === "admin") {
-                        console.log('admin log')
-                        navigation.navigate("Home");
-                    } else if (userData.rol === "repartidor") {
-                        console.log('rep log')
-                        navigation.navigate("Home");
-                    } else {
-                        console.log('clit log')
-                        navigation.navigate("Home");
+
+                    switch (userData.rol) {
+                        case "admin":
+                            console.log('admin log');
+                            navigation.navigate("HomeAdmin");
+                            break;
+                        case "repartidor":
+                            console.log('rep log');
+                            navigation.navigate("HomeRepartidor");
+                            break;
+                        default:
+                            console.log('clit log');
+                            navigation.navigate("HomeCliente");
                     }
                 });
             } else {
@@ -100,9 +103,23 @@ const Login = ({ navigation }) => {
             }
         } catch (error) {
             console.error(error);
-            Alert.alert(error.message);
+
+            switch (error.code) {
+                case "auth/invalid-email":
+                    Alert.alert("Error de inicio de sesión", "Correo electrónico inválido.");
+                    break;
+                case "auth/wrong-password":
+                    Alert.alert("Error de inicio de sesión", "Contraseña incorrecta.");
+                    break;
+                case "auth/user-not-found":
+                    Alert.alert("Error de inicio de sesión", "El usuario no existe.");
+                    break;
+                default:
+                    Alert.alert("Error de inicio de sesión", "Hubo un error al iniciar sesión. Por favor, inténtalo de nuevo.");
+            }
         }
     };
+
 
     return (
         <View style={styles.contenedor}>
@@ -240,4 +257,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default Login;
+export default Credenciales;

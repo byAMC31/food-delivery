@@ -1,8 +1,10 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import Home from './screens/Home';
-import Login from './screens/Login';
+import HomeAdmin from './screens/HomeAdmin';
+import Credenciales from './screens/Credenciales';
+import HomeCliente from './screens/HomeCliente';
+import HomeRepartidor from './screens/HomeRepartidor';
 
 const Stack = createStackNavigator();
 
@@ -17,10 +19,12 @@ function MyStack() {
                 },
             }}
         >
-            <Stack.Screen name="Login" component={Login} options={{
+            <Stack.Screen name="Credenciales" component={Credenciales} options={{
                 headerShown: false,
             }} />
-            <Stack.Screen name="Home" component={Home} />
+            <Stack.Screen name="HomeAdmin" component={HomeAdmin} />
+            <Stack.Screen name="HomeCliente" component={HomeCliente} />
+            <Stack.Screen name="HomeRepartidor" component={HomeRepartidor} />
         </Stack.Navigator>
     );
 }
