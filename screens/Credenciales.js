@@ -10,8 +10,7 @@ import {
 } from "react-native";
 
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth'
-import { initializeApp } from 'firebase/app'
-import { firebaseConfig } from "../firebase-config";
+import appFirebase from '../firebase-config';
 import { setDoc, collection, getFirestore, query, where, getDocs, doc } from "firebase/firestore";
 
 const Credenciales = ({ navigation }) => {
@@ -19,8 +18,7 @@ const Credenciales = ({ navigation }) => {
     const [email, setEmail] = useState("");
     const [contrasena, setContrasena] = useState("");
 
-    const app = initializeApp(firebaseConfig)
-    const auth = getAuth(app)
+    const auth = getAuth(appFirebase)
     const db = getFirestore();
 
     const manejarPresionarOpcion = (opcion) => {
