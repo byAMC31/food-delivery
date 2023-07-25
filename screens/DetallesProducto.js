@@ -1,9 +1,14 @@
-import React, { useState } from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, Image, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { getFirestore, collection, doc, setDoc, updateDoc, addDoc, getDoc } from 'firebase/firestore';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import appFirebase from '../firebase-config';
 
 const DetallesProducto = ({ route }) => {
     const { producto } = route.params;
     const [cantidadSeleccionada, setCantidadSeleccionada] = useState(1);
+    const auth = getAuth(appFirebase)
+
 
     const aumentarCantidad = () => {
         if (cantidadSeleccionada < producto.existencia) {
@@ -17,12 +22,45 @@ const DetallesProducto = ({ route }) => {
         }
     };
 
-    const agregarAlCarrito = () => {
-        // Aquí puedes implementar la lógica para agregar el producto al carrito
-        // por ejemplo, guardar el producto y la cantidad seleccionada en el estado global o en algún servicio de carrito.
-        // Por ahora, simplemente mostraremos un mensaje en la consola al presionar el botón "Agregar al carrito".
-        console.log(`Agregado al carrito: ${producto.nombre}, cantidad: ${cantidadSeleccionada}`);
+    const agregarAlCarrito = async (producto) => {
+        try {
+            const auth = getAuth();
+            const userId = auth.currentUser?.uid;
+            const db = getFirestore();
+
+            const productoCreado = {
+                nombre: producto.nombre,
+                precio: producto.precio,
+                cantidad: cantidadSeleccionada,
+            };
+
+            const productoRef = doc(db, "productos", producto.id);
+
+            const productoSnapshot = await getDoc(productoRef);
+            if (productoSnapshot.exists()) {
+                const productoOriginal = productoSnapshot.data();
+
+                const existenciaActualizada = productoOriginal.existencia - cantidadSeleccionada;
+
+                if (existenciaActualizada >= 0) {
+                    await updateDoc(productoRef, { existencia: existenciaActualizada });
+
+                    await addDoc(collection(db, 'usuarios', userId, "carrito"), { ...productoCreado });
+
+                    Alert.alert('Producto añadido', '¡Producto agregado al carrito!')
+                } else {
+                    Alert.alert('Error', 'No hay suficiente existencia para agregar al carrito.');
+                }
+            } else {
+                console.error('Error al agregar al carrito: No se encontró el producto.');
+            }
+        } catch (error) {
+            console.error('Error al agregar al carrito:', error);
+        }
     };
+
+
+
 
     return (
         <View style={styles.container}>
@@ -42,7 +80,7 @@ const DetallesProducto = ({ route }) => {
                     <Text style={styles.quantityButtonText}>+</Text>
                 </TouchableOpacity>
             </View>
-            <TouchableOpacity style={styles.addToCartButton} onPress={agregarAlCarrito}>
+            <TouchableOpacity style={styles.addToCartButton} onPress={() => agregarAlCarrito(producto)}>
                 <Text style={styles.addToCartButtonText}>Agregar al carrito</Text>
             </TouchableOpacity>
         </View>

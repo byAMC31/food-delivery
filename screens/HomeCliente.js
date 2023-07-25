@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { Card } from 'react-native-elements';
+import { FAB } from 'react-native-paper';
 import { getFirestore, collection, getDocs, query, where } from 'firebase/firestore';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
@@ -56,8 +57,9 @@ const HomeCliente = ({ navigation }) => {
     };
 
     return (
-        <ScrollView>
-            <View style={styles.container}>
+        <View style={styles.container}>
+            <ScrollView>
+
                 <View style={styles.cabecera}>
                     <Image source={require("../assets/logo.png")} style={styles.logo} />
                     <View style={styles.contenedorCategorias}>
@@ -103,8 +105,14 @@ const HomeCliente = ({ navigation }) => {
                 {productos.map((item) => (
                     <View key={item.id}>{renderProductCard(item)}</View>
                 ))}
-            </View>
-        </ScrollView>
+
+            </ScrollView>
+            <FAB
+                style={styles.fab}
+                icon={({ size, color }) => <Icon name="shopping-cart" size={size} color={color} />}
+                onPress={() => { navigation.navigate('Carrito'); }}
+            />
+        </View>
     );
 };
 
@@ -203,6 +211,13 @@ const styles = StyleSheet.create({
     },
     textoBotonOpcionSeleccionada: {
         color: '#FA4A0C',
+    },
+    fab: {
+        position: 'absolute',
+        margin: 16,
+        right: 0,
+        bottom: 0,
+        backgroundColor: '#FA4A0C',
     },
 });
 

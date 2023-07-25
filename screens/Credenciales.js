@@ -11,7 +11,7 @@ import {
 
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth'
 import appFirebase from '../firebase-config';
-import { setDoc, collection, getFirestore, query, where, getDocs, doc } from "firebase/firestore";
+import { setDoc, collection, getFirestore, query, where, getDocs, doc, addDoc } from "firebase/firestore";
 
 const Credenciales = ({ navigation }) => {
     const [opcionSeleccionada, setOpcionSeleccionada] = useState("iniciarSesion");
@@ -42,9 +42,15 @@ const Credenciales = ({ navigation }) => {
                 rol: "cliente",
             };
 
+            // Crear el documento del usuario en la colección "usuarios"
             await setDoc(doc(db, "usuarios", user.uid), userData);
-            setOpcionSeleccionada('iniciarSesion')
-            Alert.alert('Usuario registrado', 'Ya puedes iniciar sesión')
+
+            // Crear la colección "carrito" para el usuario recién registrado
+            const carritoRef = collection(db, "usuarios", user.uid, "carrito");
+            await addDoc(carritoRef, { productos: [] });
+
+            setOpcionSeleccionada('iniciarSesion');
+            Alert.alert('Usuario registrado', 'Ya puedes iniciar sesión');
             console.log("Usuario registrado", user.uid);
         } catch (error) {
             console.error(error);
@@ -64,6 +70,7 @@ const Credenciales = ({ navigation }) => {
             }
         }
     };
+
 
     const manejarIngresar = async () => {
         if (email.trim() === "" || contrasena === "") {
