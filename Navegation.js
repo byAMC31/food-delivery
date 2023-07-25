@@ -8,6 +8,7 @@ import CrudProductos from './screens/CrudProductos';
 import HomeRepartidor from './screens/HomeRepartidor';
 import CrearProducto from './screens/CrearProducto';
 import EditarProducto from './screens/EditarProducto';
+import DetallesProducto from './screens/DetallesProducto';
 
 const Stack = createStackNavigator();
 
@@ -30,7 +31,10 @@ function MyStack() {
             <Stack.Screen name="CrudProductos" component={CrudProductos} />
             <Stack.Screen name="CrearProducto" component={CrearProducto} />
             <Stack.Screen name="EditarProducto" component={EditarProducto} />
-            <Stack.Screen name="HomeCliente" component={HomeCliente} />
+            <Stack.Screen name="HomeCliente" component={HomeCliente} options={{
+                headerShown: false,
+            }} />
+            <Stack.Screen name="DetallesProducto" component={DetallesProducto} />
             <Stack.Screen name="HomeRepartidor" component={HomeRepartidor} />
         </Stack.Navigator>
     );

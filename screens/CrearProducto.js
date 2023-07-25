@@ -128,7 +128,8 @@ const CrearProducto = () => {
                 categoria: categoria,
                 precio: parseFloat(precio),
                 existencia: parseInt(existencia),
-                imagen: imagenUri,
+                // imagen: imagenUri,
+                imagen: 'https://st.depositphotos.com/1775303/52092/i/600/depositphotos_520920946-stock-photo-the-female-mannequin-on-the.jpg'
             };
 
             const docRef = await addDoc(collection(db, "productos"), nuevoProducto);
