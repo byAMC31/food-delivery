@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Alert } from 'react-native'; // Importamos 'Alert'
 import { Card, Image } from 'react-native-elements';
 import { FAB } from 'react-native-paper';
 import { getFirestore, collection, getDocs, query, doc, deleteDoc } from 'firebase/firestore';
@@ -29,10 +29,47 @@ const CrudProductos = ({ navigation }) => {
             }
         };
 
+        
         obtenerProductos();
 
-        return () => { };
+        // Actualizar cada 15 segundos
+        const interval = setInterval(() => {
+            obtenerProductos();
+        }, 3000);
+
+        return () => {
+            clearInterval(interval);
+        };
     }, []);
+
+    const handleDeleteProduct = async (item) => {
+        Alert.alert(
+            'Confirmar',
+            '¿Estás seguro de que deseas eliminar este producto?',
+            [
+                {
+                    text: 'Cancelar',
+                    style: 'cancel',
+                },
+                {
+                    text: 'Eliminar',
+                    style: 'destructive',
+                    onPress: async () => {
+                        try {
+                            const id = item.id;
+                            const productoRef = doc(db, 'productos', id);
+                            await deleteDoc(productoRef);
+                            setProductos((prevProductos) => prevProductos.filter((producto) => producto.id !== id));
+                            console.log('Producto eliminado con éxito');
+                        } catch (error) {
+                            console.error('Error al eliminar el producto:', error);
+                        }
+                    },
+                },
+            ],
+            { cancelable: true }
+        );
+    };
 
     const handleFloatingButton = () => {
         navigation.navigate('CrearProducto');
@@ -51,7 +88,7 @@ const CrudProductos = ({ navigation }) => {
                         <Icon
                             name="edit"
                             size={24}
-                            color="gray"
+                            color="blue"
                             onPress={() => {
                                 console.log('Editar producto:', item.id);
                                 navigation.navigate('EditarProducto', { producto: item });
@@ -60,10 +97,13 @@ const CrudProductos = ({ navigation }) => {
                         <Icon
                             name="delete"
                             size={24}
+                            
                             color="red"
                             onPress={async () => {
                                 try {
+                                    handleDeleteProduct(item)
                                     // Obtener la referencia al documento del producto que se va a eliminar
+                                    /*
                                     const id = item.id
                                     const productoRef = doc(db, 'productos', id);
 
@@ -74,6 +114,7 @@ const CrudProductos = ({ navigation }) => {
                                     setProductos((prevProductos) => prevProductos.filter((producto) => producto.id !== id));
 
                                     console.log('Producto eliminado con éxito');
+                                    **/
                                 } catch (error) {
                                     console.error('Error al eliminar el producto:', error);
                                 }
@@ -86,21 +127,25 @@ const CrudProductos = ({ navigation }) => {
     );
 
     return (
+        <View style={styles.container}>
         <ScrollView>
-            <View style={styles.container}>
+            
                 {productos.map((item) => (
                     <View key={item.id}>{renderProductCard(item)}</View>
                 ))}
-                <FAB style={styles.fab} icon="plus" onPress={handleFloatingButton} />
-            </View>
+                
+            
         </ScrollView>
+        <FAB style={styles.fab} icon="plus" onPress={handleFloatingButton} />
+        </View>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
+        
         flex: 1,
-        padding: 10,
+        padding: 15,
         backgroundColor: '#F2F2F2',
     },
     cardContainer: {
@@ -142,9 +187,11 @@ const styles = StyleSheet.create({
     },
     fab: {
         position: 'absolute',
-        margin: 16,
-        right: 0,
-        bottom: 0,
+        margin: -22,
+        
+        right: 30,
+        
+        bottom: 26,
         backgroundColor: '#FA4A0C',
     },
 });

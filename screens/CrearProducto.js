@@ -125,7 +125,7 @@ const CrearProducto = () => {
 
             const nuevoProducto = {
                 nombre,
-                categoría: categoria,
+                categoria: categoria,
                 precio: parseFloat(precio),
                 existencia: parseInt(existencia),
                 imagen: imagenUri,

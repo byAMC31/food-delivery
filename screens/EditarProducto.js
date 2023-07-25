@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native'; // Reemplazamos 'Button' por 'TouchableOpacity'
 import { getFirestore, doc, updateDoc } from 'firebase/firestore';
 
 const EditarProducto = ({ route, navigation }) => {
@@ -61,8 +61,12 @@ const EditarProducto = ({ route, navigation }) => {
                 onChangeText={setExistencia}
                 keyboardType="numeric"
             />
+            
+            <TouchableOpacity style={styles.button} onPress={handleGuardarCambios}>
+                <Text style={styles.buttonText}>Guardar Cambios</Text>
+            </TouchableOpacity>
 
-            <Button title="Guardar Cambios" onPress={handleGuardarCambios} />
+            
         </View>
     );
 };
@@ -75,7 +79,7 @@ const styles = StyleSheet.create({
     },
     label: {
         fontSize: 16,
-        fontWeight: 'bold',
+        fontWeight: "bold",
         marginBottom: 4,
     },
     input: {
@@ -83,6 +87,19 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderColor: 'gray',
         marginBottom: 20,
+    },
+    button: {
+        backgroundColor: "#FA4A0C",
+        paddingVertical: 12,
+        paddingHorizontal: 20,
+        borderRadius: 30,
+        marginTop: 15,
+    },
+    buttonText: {
+        color: 'white',
+        fontSize: 16,
+        fontWeight: 'bold',
+        textAlign: 'center',
     },
 });
 
