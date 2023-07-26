@@ -16,7 +16,7 @@ const HomeCliente = ({ navigation }) => {
             let q = query(productosRef, where('existencia', '>', 0));
 
             if (categoriaSeleccionada !== 'Todos') {
-                q = query(productosRef, where('categoria', '==', categoriaSeleccionada), where('existencias', '>', 0));
+                q = query(productosRef, where('categoria', '==', categoriaSeleccionada), where('existencia', '>', 0));
             }
 
             const unsubscribe = onSnapshot(q, (querySnapshot) => {
@@ -24,6 +24,7 @@ const HomeCliente = ({ navigation }) => {
                 querySnapshot.forEach((doc) => {
                     data.push({ id: doc.id, ...doc.data() });
                 });
+
                 setProductos(data);
             });
 
@@ -32,6 +33,7 @@ const HomeCliente = ({ navigation }) => {
 
         obtenerProductos();
     }, [categoriaSeleccionada]);
+
 
     const renderProductCard = (item) => (
         <TouchableOpacity onPress={() => navigateToDetallesProducto(item)}>
