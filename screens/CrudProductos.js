@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Alert } from 'react-native'; // Importamos 'Alert'
 import { Card, Image } from 'react-native-elements';
 import { FAB } from 'react-native-paper';
-import { getFirestore, collection, getDocs, query, doc, deleteDoc } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, query, doc, deleteDoc, onSnapshot } from 'firebase/firestore';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { ScrollView } from 'react-native-gesture-handler';
 
@@ -11,35 +11,23 @@ const CrudProductos = ({ navigation }) => {
     const db = getFirestore();
 
     useEffect(() => {
-        const obtenerProductos = async () => {
-            try {
-                const productosRef = collection(db, 'productos');
-                const q = query(productosRef);
+        const obtenerProductos = () => {
+            const productosRef = collection(db, 'productos');
 
-                const querySnapshot = await getDocs(q);
-
+            const unsubscribe = onSnapshot(productosRef, (querySnapshot) => {
                 const data = [];
                 querySnapshot.forEach((doc) => {
                     data.push({ id: doc.id, ...doc.data() });
                 });
-
                 setProductos(data);
-            } catch (error) {
-                console.error('Error al obtener productos:', error);
-            }
+            });
+
+            return () => {
+                unsubscribe();
+            };
         };
 
-        
         obtenerProductos();
-
-        // Actualizar cada 15 segundos
-        const interval = setInterval(() => {
-            obtenerProductos();
-        }, 3000);
-
-        return () => {
-            clearInterval(interval);
-        };
     }, []);
 
     const handleDeleteProduct = async (item) => {
@@ -97,24 +85,11 @@ const CrudProductos = ({ navigation }) => {
                         <Icon
                             name="delete"
                             size={24}
-                            
+
                             color="red"
                             onPress={async () => {
                                 try {
                                     handleDeleteProduct(item)
-                                    // Obtener la referencia al documento del producto que se va a eliminar
-                                    /*
-                                    const id = item.id
-                                    const productoRef = doc(db, 'productos', id);
-
-                                    // Eliminar el producto de la base de datos
-                                    await deleteDoc(productoRef);
-
-                                    // Actualizar la lista de productos después de eliminar
-                                    setProductos((prevProductos) => prevProductos.filter((producto) => producto.id !== id));
-
-                                    console.log('Producto eliminado con éxito');
-                                    **/
                                 } catch (error) {
                                     console.error('Error al eliminar el producto:', error);
                                 }
@@ -128,22 +103,22 @@ const CrudProductos = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
-        <ScrollView>
-            
+            <ScrollView>
+
                 {productos.map((item) => (
                     <View key={item.id}>{renderProductCard(item)}</View>
                 ))}
-                
-            
-        </ScrollView>
-        <FAB style={styles.fab} icon="plus" onPress={handleFloatingButton} />
+
+
+            </ScrollView>
+            <FAB style={styles.fab} icon="plus" onPress={handleFloatingButton} />
         </View>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
-        
+
         flex: 1,
         padding: 15,
         backgroundColor: '#F2F2F2',
@@ -188,9 +163,9 @@ const styles = StyleSheet.create({
     fab: {
         position: 'absolute',
         margin: -22,
-        
+
         right: 30,
-        
+
         bottom: 26,
         backgroundColor: '#FA4A0C',
     },

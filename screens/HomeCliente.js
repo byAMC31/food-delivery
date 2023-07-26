@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { Card } from 'react-native-elements';
 import { FAB } from 'react-native-paper';
-import { getFirestore, collection, getDocs, query, where } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, query, where, onSnapshot } from 'firebase/firestore';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const HomeCliente = ({ navigation }) => {
@@ -11,31 +11,26 @@ const HomeCliente = ({ navigation }) => {
     const db = getFirestore();
 
     useEffect(() => {
-        const obtenerProductos = async () => {
-            try {
-                const productosRef = collection(db, 'productos');
-                let q = query(productosRef);
+        const obtenerProductos = () => {
+            const productosRef = collection(db, 'productos');
+            let q = query(productosRef, where('existencia', '>', 0));
 
-                if (categoriaSeleccionada !== 'Todos') {
-                    q = query(productosRef, where('categoria', '==', categoriaSeleccionada));
-                }
+            if (categoriaSeleccionada !== 'Todos') {
+                q = query(productosRef, where('categoria', '==', categoriaSeleccionada), where('existencias', '>', 0));
+            }
 
-                const querySnapshot = await getDocs(q);
-
+            const unsubscribe = onSnapshot(q, (querySnapshot) => {
                 const data = [];
                 querySnapshot.forEach((doc) => {
                     data.push({ id: doc.id, ...doc.data() });
                 });
-
                 setProductos(data);
-            } catch (error) {
-                console.error('Error al obtener productos:', error);
-            }
+            });
+
+            return () => unsubscribe();
         };
 
         obtenerProductos();
-
-        return () => { };
     }, [categoriaSeleccionada]);
 
     const renderProductCard = (item) => (

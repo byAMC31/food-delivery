@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity, Alert } from 'react-native';
-import { getFirestore, collection, doc, setDoc, updateDoc, addDoc, getDoc } from 'firebase/firestore';
+import { getFirestore, collection, doc, setDoc, updateDoc, addDoc, getDoc, getDocs, query } from 'firebase/firestore';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import appFirebase from '../firebase-config';
 
-const DetallesProducto = ({ route }) => {
+const DetallesProducto = ({ route, navigation }) => {
     const { producto } = route.params;
     const [cantidadSeleccionada, setCantidadSeleccionada] = useState(1);
     const auth = getAuth(appFirebase)
@@ -27,6 +27,7 @@ const DetallesProducto = ({ route }) => {
             const auth = getAuth();
             const userId = auth.currentUser?.uid;
             const db = getFirestore();
+            const carritoRef = collection(db, 'usuarios', userId, 'carrito');
 
             const productoCreado = {
                 nombre: producto.nombre,
@@ -34,33 +35,37 @@ const DetallesProducto = ({ route }) => {
                 cantidad: cantidadSeleccionada,
             };
 
-            const productoRef = doc(db, "productos", producto.id);
+            const carritoSnapshot = await getDocs(query(carritoRef));
+            const productoExistente = carritoSnapshot.docs.find(doc => doc.data().nombre === producto.nombre);
 
+            if (productoExistente) {
+                const cantidadActual = productoExistente.data().cantidad;
+                const cantidadNueva = cantidadActual + cantidadSeleccionada;
+                await updateDoc(doc(carritoRef, productoExistente.id), { cantidad: cantidadNueva });
+            } else {
+                await addDoc(carritoRef, { ...productoCreado });
+            }
+
+            const productoRef = doc(db, "productos", producto.id);
             const productoSnapshot = await getDoc(productoRef);
             if (productoSnapshot.exists()) {
                 const productoOriginal = productoSnapshot.data();
-
                 const existenciaActualizada = productoOriginal.existencia - cantidadSeleccionada;
-
                 if (existenciaActualizada >= 0) {
                     await updateDoc(productoRef, { existencia: existenciaActualizada });
-
-                    await addDoc(collection(db, 'usuarios', userId, "carrito"), { ...productoCreado });
-
-                    Alert.alert('Producto añadido', '¡Producto agregado al carrito!')
+                    Alert.alert('Producto añadido', '¡Producto agregado al carrito!');
                 } else {
                     Alert.alert('Error', 'No hay suficiente existencia para agregar al carrito.');
                 }
             } else {
                 console.error('Error al agregar al carrito: No se encontró el producto.');
             }
+
+            navigation.goBack();
         } catch (error) {
             console.error('Error al agregar al carrito:', error);
         }
     };
-
-
-
 
     return (
         <View style={styles.container}>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native'; // Reemplazamos 'Button' por 'TouchableOpacity'
+import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { getFirestore, doc, updateDoc } from 'firebase/firestore';
 
 const EditarProducto = ({ route, navigation }) => {
@@ -61,12 +61,12 @@ const EditarProducto = ({ route, navigation }) => {
                 onChangeText={setExistencia}
                 keyboardType="numeric"
             />
-            
+
             <TouchableOpacity style={styles.button} onPress={handleGuardarCambios}>
                 <Text style={styles.buttonText}>Guardar Cambios</Text>
             </TouchableOpacity>
 
-            
+
         </View>
     );
 };
