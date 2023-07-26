@@ -1,29 +1,46 @@
-import React from 'react'
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
+import React from 'react';
+import { ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 
 export default function HomeAdmin({ navigation }) {
     const options = [
-        
-        { title: 'CRUD Productos', route: 'CrudProductos' },
-        { title: 'CRUD Repartidor', route: 'HomeRepartidor' },
-        //{ title: 'CRUD cliente', route: 'HomeCliente' },
+        {
+            title: 'Gestionar productos',
+            route: 'CrudProductos',
+            imageUri: 'https://img.freepik.com/vector-premium/marco-fondo-rosa-dulce-abstracto-postres-cupcakes-helado-donut-pastel-caramelo_658748-381.jpg?w=2000',
+            description: 'Administra los productos de repostería, panadería y pastelería en tu negocio. Agrega nuevos productos, actualiza información y elimina aquellos que ya no estén disponibles.',
+        },
+        {
+            title: 'Administrar Repartidores',
+            route: 'CrudRepartidor',
+            imageUri: 'https://media.istockphoto.com/id/528729374/es/vector/r%C3%A1pida-entrega-el-chico-en-la-bicicleta-prisa.jpg?s=612x612&w=0&k=20&c=dC9sPZFt9qoD_rOQEPYGm2BsKyORtF0i_-mUO6_6gxg=',
+            description: 'Gestiona a tus repartidores de manera eficiente. Añade nuevos repartidores, actualiza sus datos y asigna tareas de entrega.',
+        },
     ];
 
     return (
-        <View style={styles.container}>
-            <Text style={styles.title}>Opciones del Administrador:</Text>
-            {options.map((option, index) => (
-                <TouchableOpacity
-                    key={index}
-                    style={styles.optionCard}
-                    onPress={() => navigation.navigate(option.route)}
-                >
-                    <Text style={styles.button}>{option.title}</Text>
-                </TouchableOpacity>
-            ))}
-        </View>
+        <ScrollView>
+            <View style={styles.container}>
+                {options.map((option, index) => (
+                    <TouchableOpacity
+                        key={index}
+                        style={styles.optionCard}
+                        onPress={() => navigation.navigate(option.route)}
+                    >
+                        <Image
+                            style={styles.image}
+                            source={{ uri: option.imageUri }}
+                        />
+                        <Text style={styles.title}>{option.title}</Text>
+                        <Text style={styles.description}>
+                            {option.description}
+                        </Text>
+                    </TouchableOpacity>
+                ))}
+            </View>
+        </ScrollView>
     );
-};
+}
 
 const styles = StyleSheet.create({
     container: {
@@ -31,32 +48,35 @@ const styles = StyleSheet.create({
         padding: 20,
         backgroundColor: '#fff',
     },
-    title: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        marginBottom: 20,
-    },
     optionCard: {
-        backgroundColor: '#f0f0f0',
-        padding: 15,
-        marginBottom: 10,
+        backgroundColor: '#fff',
+        borderWidth: 1,
+        borderColor: '#ddd',
         borderRadius: 8,
+        marginBottom: 20,
+        padding: 15,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
     },
-    optionText: {
-        backgroundColor: "#FA4A0C",
-        fontSize: 18,
+    image: {
+        width: '100%',
+        height: 180,
+        borderRadius: 8,
+        marginBottom: 10,
     },
-    button: {
-        backgroundColor: "#FA4A0C",
-        paddingVertical: 12,
-        paddingHorizontal: 20,
-        borderRadius: 30,
-        marginTop: 15,
-    },
-    buttonText: {
-        color: 'white',
-        fontSize: 16,
+    title: {
+        fontSize: 20,
         fontWeight: 'bold',
-        textAlign: 'center',
+        color: '#333',
+    },
+    description: {
+        color: '#666',
+        marginBottom: 10,
     },
 });

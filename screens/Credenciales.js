@@ -186,7 +186,7 @@ const styles = StyleSheet.create({
     contenedor: {
         flex: 1,
         flexDirection: "column",
-        backgroundColor: 'white'
+        backgroundColor: '#F2F2F2'
     },
     cabecera: {
         flex: 1,
