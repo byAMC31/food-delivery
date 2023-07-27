@@ -1,8 +1,18 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import Home from './screens/Home';
-import Login from './screens/Login';
+import Credenciales from './screens/Credenciales';
+import HomeAdmin from './screens/HomeAdmin';
+import HomeCliente from './screens/HomeCliente';
+import CrudProductos from './screens/CrudProductos';
+import HomeRepartidor from './screens/HomeRepartidor';
+import CrearProducto from './screens/CrearProducto';
+import EditarProducto from './screens/EditarProducto';
+import DetallesProducto from './screens/DetallesProducto';
+import Carrito from './screens/Carrito';
+import CrudRepartidor from './screens/CrudRepartidor';
+import Mapa from './screens/Mapa';
+import PedidosClientes from './screens/PedidosCliente';
 
 const Stack = createStackNavigator();
 
@@ -13,14 +23,29 @@ function MyStack() {
                 headerStyle: {
                     borderBottomRightRadius: 20,
                     borderBottomLeftRadius: 20,
-                    backgroundColor: '#FA4A0C'
+                    backgroundColor: '#FA4A0C',
                 },
+                headerTintColor: '#FFFFFF'
             }}
         >
-            <Stack.Screen name="Login" component={Login} options={{
+            <Stack.Screen name="Credenciales" component={Credenciales} options={{
                 headerShown: false,
             }} />
-            <Stack.Screen name="Home" component={Home} />
+            <Stack.Screen name="HomeAdmin" component={HomeAdmin} />
+            <Stack.Screen name="CrudProductos" component={CrudProductos} />
+            <Stack.Screen name="CrearProducto" component={CrearProducto} />
+            <Stack.Screen name="CrudRepartidor" component={CrudRepartidor} />
+            <Stack.Screen name="EditarProducto" component={EditarProducto} />
+            <Stack.Screen name="HomeCliente" component={HomeCliente} options={{
+                headerShown: false,
+            }} />
+            <Stack.Screen name="PedidosCliente" component={PedidosClientes} />
+            <Stack.Screen name="Carrito" component={Carrito} />
+            <Stack.Screen name="Mapa" component={Mapa} options={{
+                headerShown: false,
+            }} />
+            <Stack.Screen name="DetallesProducto" component={DetallesProducto} />
+            <Stack.Screen name="HomeRepartidor" component={HomeRepartidor} />
         </Stack.Navigator>
     );
 }
