@@ -11,6 +11,7 @@ import EditarProducto from './screens/EditarProducto';
 import DetallesProducto from './screens/DetallesProducto';
 import Carrito from './screens/Carrito';
 import CrudRepartidor from './screens/CrudRepartidor';
+import Mapa from './screens/Mapa';
 
 const Stack = createStackNavigator();
 
@@ -38,6 +39,9 @@ function MyStack() {
                 headerShown: false,
             }} />
             <Stack.Screen name="Carrito" component={Carrito} />
+            <Stack.Screen name="Mapa" component={Mapa} options={{
+                headerShown: false,
+            }} />
             <Stack.Screen name="DetallesProducto" component={DetallesProducto} />
             <Stack.Screen name="HomeRepartidor" component={HomeRepartidor} />
         </Stack.Navigator>

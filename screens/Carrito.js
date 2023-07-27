@@ -102,7 +102,7 @@ const Carrito = ({ navigation }) => {
     };
 
     const handlePagarPress = () => {
-        navigation.goBack();
+        navigation.navigate('Mapa');
     };
 
     return (

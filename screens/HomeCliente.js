@@ -58,6 +58,16 @@ const HomeCliente = ({ navigation }) => {
             <ScrollView>
 
                 <View style={styles.cabecera}>
+                    <FAB
+                        style={styles.fab2}
+                        icon={({ size, color }) => <Icon name="fastfood" size={size} color={color} />}
+                        onPress={() => { navigation.navigate('Carrito'); }}
+                    />
+                    <FAB
+                        style={styles.fab3}
+                        icon={({ size, color }) => <Icon name="logout" size={size} color={color} />}
+                        onPress={() => { navigation.navigate('Carrito'); }}
+                    />
                     <Image source={require("../assets/logo.png")} style={styles.logo} />
                     <View style={styles.contenedorCategorias}>
                         <TouchableOpacity
@@ -215,6 +225,20 @@ const styles = StyleSheet.create({
         right: 0,
         bottom: 0,
         backgroundColor: '#FA4A0C',
+    },
+    fab2: {
+        position: 'absolute',
+        margin: 16,
+        right: 0,
+        top: 30,
+        backgroundColor: 'orange',
+    },
+    fab3: {
+        position: 'absolute',
+        margin: 16,
+        left: 0,
+        top: 30,
+        backgroundColor: 'red',
     },
 });
 
