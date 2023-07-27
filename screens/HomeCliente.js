@@ -61,12 +61,12 @@ const HomeCliente = ({ navigation }) => {
                     <FAB
                         style={styles.fab2}
                         icon={({ size, color }) => <Icon name="fastfood" size={size} color={color} />}
-                        onPress={() => { navigation.navigate('Carrito'); }}
+                        onPress={() => { navigation.navigate('PedidosCliente'); }}
                     />
                     <FAB
                         style={styles.fab3}
                         icon={({ size, color }) => <Icon name="logout" size={size} color={color} />}
-                        onPress={() => { navigation.navigate('Carrito'); }}
+                        onPress={() => { navigation.navigate('Credenciales'); }}
                     />
                     <Image source={require("../assets/logo.png")} style={styles.logo} />
                     <View style={styles.contenedorCategorias}>

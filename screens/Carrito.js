@@ -103,12 +103,13 @@ const Carrito = ({ navigation }) => {
 
     const crearPedido = async () => {
         try {
-            // Crear un nuevo pedido en la colección 'pedidos'
+            const totalPrecio = calcularPrecioTotal();
             const pedidoRef = collection(db, 'pedidos');
             const nuevoPedido = {
-                userId: userId, // ID del usuario que realizó el pedido
-                carrito: carrito, // Contenido del carrito
-                fecha: new Date(), // Puedes agregar la fecha del pedido si lo deseas
+                userId: userId,
+                carrito: carrito,
+                totalPrecio: totalPrecio,
+                fecha: new Date(),
             };
             const pedidoDoc = await addDoc(pedidoRef, nuevoPedido);
             console.log('Pedido creado:', pedidoDoc.id);
@@ -117,32 +118,23 @@ const Carrito = ({ navigation }) => {
         }
     };
 
-    const eliminarTodosLosProductos = async () => {
+    const handlePedidoPress = async () => {
         try {
-            // Primero crea el pedido antes de eliminar los productos del carrito
-            await crearPedido();
-
-            // Eliminar cada producto del carrito individualmente en Firestore
+            crearPedido()
             carrito.forEach(async (producto) => {
                 const carritoRef = doc(db, 'usuarios', userId, 'carrito', producto.id);
                 await deleteDoc(carritoRef);
             });
-
-            // Vaciar el carrito localmente estableciéndolo como un arreglo vacío
             setCarrito([]);
+            // navigation.navigate('Mapa');
         } catch (error) {
             console.error('Error al eliminar los productos del carrito:', error);
         }
-    };
 
-    const handlePagarPress = () => {
-        eliminarTodosLosProductos();
-
-        //navigation.navigate('Mapa');
 
     };
 
-    
+
     return (
         <View style={styles.container}>
             {carrito.length === 0 ? (
@@ -155,8 +147,8 @@ const Carrito = ({ navigation }) => {
                         renderItem={renderProductoItem}
                     />
                     <Text style={styles.totalPrice}>Total a pagar: ${calcularPrecioTotal()}</Text>
-                    <TouchableOpacity style={styles.addToCartButton} onPress={handlePagarPress}>
-                        <Text style={styles.addToCartButtonText}>Pagar</Text>
+                    <TouchableOpacity style={styles.addToCartButton} onPress={handlePedidoPress}>
+                        <Text style={styles.addToCartButtonText}>Hacer pedido</Text>
                     </TouchableOpacity>
                 </>
             )}

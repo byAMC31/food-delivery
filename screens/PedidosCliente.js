@@ -1,37 +1,33 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { getFirestore, collection, getDocs } from 'firebase/firestore';
+import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
+import appFirebase from '../firebase-config';
 
-const HomeRepartidor = () => {
+const PedidosCliente = () => {
     const [pedidos, setPedidos] = useState([]);
+    const auth = getAuth(appFirebase);
+    const userId = auth.currentUser?.uid;
     const db = getFirestore();
 
     useEffect(() => {
         const obtenerPedidos = async () => {
             const pedidosRef = collection(db, 'pedidos');
-            const querySnapshot = await getDocs(pedidosRef);
+            const q = query(pedidosRef, where('userId', '==', userId));
+            const querySnapshot = await getDocs(q);
             const pedidosData = querySnapshot.docs.map((doc) => doc.data());
             setPedidos(pedidosData);
         };
-
         obtenerPedidos();
-    }, []);
-
-    const calcularTotalCarrito = (carrito) => {
-        let total = 0;
-        carrito.forEach((productoCarrito) => {
-            total += productoCarrito.precio * productoCarrito.cantidad;
-        });
-        return total;
-    };
+    }, [userId]);
 
     const renderProductoCarrito = ({ item }) => {
         return (
             <View style={styles.productoCarrito}>
                 <Text style={styles.productoNombre}>{item.nombre}</Text>
                 <Text style={styles.productoCantidad}>Cantidad: {item.cantidad}</Text>
-                <Text style={styles.productoPrecio}>Total: ${item.precio * item.cantidad}</Text>
+                <Text style={styles.productoPrecio}>Total a pagar: ${item.precio * item.cantidad}</Text>
             </View>
         );
     };
@@ -40,17 +36,17 @@ const HomeRepartidor = () => {
         return (
             <View style={styles.pedidoContainer}>
                 <View style={styles.header}>
-                    <Icon name="assignment" size={24} color="#555" />
-                    <Text style={styles.userId}>Usuario ID</Text>
+                    <Icon name="lock-clock" size={24} color="#555" />
+                    <Text style={styles.fecha}>Fecha: {item.fecha && item.fecha.seconds ? new Date(item.fecha.seconds * 1000).toLocaleString() : 'N/A'}</Text>
                 </View>
                 <FlatList
                     data={item.carrito}
                     keyExtractor={(productoCarrito, index) => `${productoCarrito.id}-${index}`}
                     renderItem={renderProductoCarrito}
                 />
-                <Text style={styles.precioTotal}>Total a pagar: ${calcularTotalCarrito(item.carrito)}</Text>
+                <Text style={styles.precioTotal}>Precio Total: ${item.totalPrecio}</Text>
                 <TouchableOpacity style={styles.verDetalleButton}>
-                    <Text style={styles.verDetalleButtonText}>Ver Detalles</Text>
+                    <Text style={styles.verDetalleButtonText}>Ver Detalle</Text>
                 </TouchableOpacity>
             </View>
         );
@@ -85,9 +81,10 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginBottom: 10,
     },
-    userId: {
+    carritoTitle: {
         marginLeft: 10,
-        fontSize: 14,
+        fontSize: 18,
+        fontWeight: 'bold',
         color: '#555',
     },
     productoCarrito: {
@@ -114,7 +111,7 @@ const styles = StyleSheet.create({
     precioTotal: {
         fontSize: 18,
         fontWeight: 'bold',
-        marginTop: 10,
+        marginTop: 20,
         textAlign: 'center',
         color: '#FA4A0C',
     },
@@ -130,6 +127,13 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         fontSize: 16,
     },
+    fecha: {
+        marginTop: 4,
+        marginLeft: 3,
+        fontSize: 14,
+        color: '#555',
+        textAlign: 'center',
+    },
 });
 
-export default HomeRepartidor;
+export default PedidosCliente;

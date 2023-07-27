@@ -6,9 +6,15 @@ import * as Location from 'expo-location';
 
 export default function Mapa({ navigation }) {
 
-    const [origin, setOrigin] = useState({ latitude: 0, longitude: 0 });
+    const [origin, setOrigin] = useState({ latitude: 17.0800, longitude: -96.7300 });
 
     const getLocationUser = async () => {
+        let { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+            console.log('Permiso de ubicación denegado');
+            return;
+        }
+
         let currentLocation = await Location.getCurrentPositionAsync({});
 
         const latitude = currentLocation.coords.latitude;
