@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import { getFirestore, collection, query, getDocs, doc, deleteDoc, updateDoc, where } from 'firebase/firestore';
+import { getFirestore, collection, query, getDocs, doc, deleteDoc, updateDoc, where, addDoc } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import appFirebase from '../firebase-config';
 
@@ -101,10 +101,48 @@ const Carrito = ({ navigation }) => {
         return total;
     };
 
-    const handlePagarPress = () => {
-        navigation.navigate('Mapa');
+    const crearPedido = async () => {
+        try {
+            // Crear un nuevo pedido en la colección 'pedidos'
+            const pedidoRef = collection(db, 'pedidos');
+            const nuevoPedido = {
+                userId: userId, // ID del usuario que realizó el pedido
+                carrito: carrito, // Contenido del carrito
+                fecha: new Date(), // Puedes agregar la fecha del pedido si lo deseas
+            };
+            const pedidoDoc = await addDoc(pedidoRef, nuevoPedido);
+            console.log('Pedido creado:', pedidoDoc.id);
+        } catch (error) {
+            console.error('Error al crear el pedido:', error);
+        }
     };
 
+    const eliminarTodosLosProductos = async () => {
+        try {
+            // Primero crea el pedido antes de eliminar los productos del carrito
+            await crearPedido();
+
+            // Eliminar cada producto del carrito individualmente en Firestore
+            carrito.forEach(async (producto) => {
+                const carritoRef = doc(db, 'usuarios', userId, 'carrito', producto.id);
+                await deleteDoc(carritoRef);
+            });
+
+            // Vaciar el carrito localmente estableciéndolo como un arreglo vacío
+            setCarrito([]);
+        } catch (error) {
+            console.error('Error al eliminar los productos del carrito:', error);
+        }
+    };
+
+    const handlePagarPress = () => {
+        eliminarTodosLosProductos();
+
+        //navigation.navigate('Mapa');
+
+    };
+
+    
     return (
         <View style={styles.container}>
             {carrito.length === 0 ? (
