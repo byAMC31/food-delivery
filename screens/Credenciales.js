@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
     View,
     Text,
@@ -7,18 +7,26 @@ import {
     TouchableOpacity,
     Alert,
     StyleSheet,
+    Button
 } from "react-native";
 
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth'
 import appFirebase from '../firebase-config';
 import { setDoc, collection, getFirestore, query, where, getDocs, doc, addDoc } from "firebase/firestore";
+import {
+  GoogleSignin,
+  GoogleSigninButton,
+  statusCodes,
+} from '@react-native-google-signin/google-signin';
+import auth from '@react-native-firebase/auth';
+
 
 const Credenciales = ({ navigation }) => {
     const [opcionSeleccionada, setOpcionSeleccionada] = useState("iniciarSesion");
     const [email, setEmail] = useState("");
     const [contrasena, setContrasena] = useState("");
 
-    const auth = getAuth(appFirebase)
+   // const auth = getAuth(appFirebase)
     const db = getFirestore();
 
     const manejarPresionarOpcion = (opcion) => {
@@ -125,6 +133,57 @@ const Credenciales = ({ navigation }) => {
         }
     };
 
+  // Set an initializing state whilst Firebase connects
+  const [initializing, setInitializing] = useState(true);
+  const [user, setUser] = useState();
+
+  GoogleSignin.configure({
+    webClientId: '146245423252-jgul01ftam7svhfqfb9v2og4oi1m5n3q.apps.googleusercontent.com',
+  });
+  // Handle user state changes
+  function onAuthStateChanged(user) {
+    setUser(user);
+    if (initializing) setInitializing(false);
+  }
+
+  useEffect(() => {
+    const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
+    return subscriber; // unsubscribe on unmount
+  }, []);
+
+  if (initializing) return null;
+
+  //Para cerrar sesion
+  const signOut = async()  => {
+    try {
+      await GoogleSignin.revokeAccess();
+      await auth().signOut();
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  const onGoogleButtonPress = async () => {
+    // Check if your device supports Google Play
+    await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+    // Get the users ID token
+    const { idToken } = await GoogleSignin.signIn();
+
+    // Create a Google credential with the token
+    const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+
+
+    const user_sign_in = auth().signInWithCredential(googleCredential);
+
+    user_sign_in.then((user) => {
+      console.log(user);
+    }).catch((error) => {
+        console.error(error)
+    })
+
+  }
+
+  if (!user) {
 
     return (
         <View style={styles.contenedor}>
@@ -175,11 +234,24 @@ const Credenciales = ({ navigation }) => {
                         <TouchableOpacity style={styles.botonIngresar} onPress={manejarRegistro}>
                             <Text style={styles.textoBotonIngresar}>Registrarse</Text>
                         </TouchableOpacity>
+                        
                     )}
                 </View>
+                <GoogleSigninButton style={{ width: 250, height: 50, marginTop: 20 }}
+                onPress={onGoogleButtonPress}
+              />
             </View>
         </View>
     );
+}
+
+
+return (
+  <View style={styles.container}>
+    <Text>{user.displayName}</Text>
+    <Button title='Sign out' onPress={signOut}></Button>
+  </View>
+);
 };
 
 const styles = StyleSheet.create({

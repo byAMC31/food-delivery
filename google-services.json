@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "146245423252",
+    "project_id": "equipo9-f1e8d",
+    "storage_bucket": "equipo9-f1e8d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:146245423252:android:8c958c39ecb7033f9da481",
+        "android_client_info": {
+          "package_name": "com.abel3131.fooddelivery"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "146245423252-1ii4lb97bg2frh7ni19daq14mt8q26kv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.abel3131.fooddelivery",
+            "certificate_hash": "66f31b3bcb147fd3dcdee6071fa8c2f1d14ef857"
+          }
+        },
+        {
+          "client_id": "146245423252-abfm9gapgea3snevh9lkhdodhag7m2ig.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.abel3131.fooddelivery",
+            "certificate_hash": "889b9873b3e606a3369b58e14659d4b43224fad6"
+          }
+        },
+        {
+          "client_id": "146245423252-komblck5lp4cvba3bivm2e28asg75mcu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAMPcmhItdrG34qBvkr0Em1nXuURiRaiqw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "146245423252-jgul01ftam7svhfqfb9v2og4oi1m5n3q.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
